@@ -1,3 +1,40 @@
+<?php
+if (isset($_POST['button_create'])) {
+    $database = new Database();
+    $db = $database->getConnection();
+
+    $validateSql = "SELECT * FROM lokasi WHERE nama_lokasi = ?";
+    //$validateSql = "SELECT * FROM lokasi WHERE nama_lokasi LIKE CONCAT ( '%', ?, '%')";
+
+    $stmt = $db->prepare($validateSql);
+    $stmt->bindParam(1, $_POST['nama_lokasi']);
+    $stmt->execute();
+    if ($stmt->rowCount() > 0) {
+?>
+        <div class="alert alert-danger alert-dismissible">
+            <button class="close" data-dismiss="alert" aria-hidden="true">x</button>
+            <h5><i class="icon fas fa-ban"></i> Gagal</h5>
+            Nama lokasi sama sudah ada
+        </div>
+<?php
+    } else {
+        $insertSql = "INSERT INTO lokasi SET nama_lokasi = ?";
+        $stmt = $db->prepare($insertSql);
+        $stmt->bindParam(1, $_POST['nama_lokasi']);
+        if ($stmt->execute()) {
+            $_SESSION['hasil'] = true;
+            $_SESSION['pesan'] = "Berhasil simpan data";
+        } else {
+            $_SESSION['hasil'] = false;
+            $_SESSION['pesan'] = "Gagal simpan data";
+        }
+        echo '<meta http-equiv="refresh" content="0; url=?page=lokasiread">';
+    }
+
+    //echo $validateSql;
+}
+?>
+
 <section class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
